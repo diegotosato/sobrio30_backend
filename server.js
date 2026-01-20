@@ -28,20 +28,24 @@ app.post('/send-email', async (req, res) => {
         activityType
     } = req.body;
 
-    // Configura Nodemailer (SMTP Gmail, ma puoi usare altri provider)
+    // Configura Nodemailer con SMTP Register.it
     const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // true solo se usi 465
+        host: "smtp.register.it",
+        port: 465,
+        secure: true, // true per porta 465 con SSL
         auth: {
-            user: process.env.EMAIL_USER,     // sostituisci con la tua email
-            pass: process.env.EMAIL_PASS      // password app Gmail o SMTP
+            user: process.env.EMAIL_USER,     // il tuo indirizzo email completo Register.it
+            pass: process.env.EMAIL_PASS      // password email Register.it
+        },
+        tls: {
+            rejectUnauthorized: false // per evitare problemi con certificati
         }
     });
 
     // Corpo della mail
     const mailOptions = {
-        from: email,
+        from: process.env.EMAIL_USER,  // ← usa la tua email autenticata
+        replyTo: email,
         to: process.env.EMAIL_RECEIVER, // email dove vuoi ricevere i messaggi
         subject: "Richiesta rivenditore Sobrio30",
         text: `
