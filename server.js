@@ -39,22 +39,6 @@ app.post('/send-email', async (req, res) => {
             });
         }
 
-        // Validazione formato email
-        if (!isValidEmail(email)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Formato email non valido'
-            });
-        }
-
-        // Validazione formato telefono
-        if (!isValidPhone(phone)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Formato telefono non valido'
-            });
-        }
-
         // Validazione tipo utente
         if (!['privato', 'azienda'].includes(type)) {
             return res.status(400).json({
