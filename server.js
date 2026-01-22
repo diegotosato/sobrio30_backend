@@ -32,7 +32,7 @@ app.post('/send-email', async (req, res) => {
         } = req.body;
 
         // Validazione campi obbligatori
-        if (!type || !name || !email || !phone || !address) {
+        if (!type || !name || !normalizedEmail || !phone || !address) {
             return res.status(400).json({
                 success: false,
                 error: 'Campi obbligatori mancanti'
@@ -44,6 +44,21 @@ app.post('/send-email', async (req, res) => {
             return res.status(400).json({
                 success: false,
                 error: 'Tipo utente non valido'
+            });
+        }
+
+
+        // Sanitizzazione email
+        const normalizedEmail = validator.normalizeEmail(email);
+
+        // Validazione email
+        if (!normalizedEmail || !validator.isEmail(normalizedEmail, {
+            require_tld: true,
+            allow_ip_domain: false
+        })) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email non valida'
             });
         }
 
@@ -61,7 +76,7 @@ app.post('/send-email', async (req, res) => {
         // Corpo della mail
         const mailOptions = {
             from: process.env.EMAIL_USER,
-            replyTo: email,
+            replyTo: normalizedEmail,
             to: process.env.EMAIL_RECEIVER,
             subject: `Richiesta rivenditore Sobrio30 - ${name}`,
             text: `
@@ -69,7 +84,7 @@ Nuova richiesta rivenditore Sobrio30
 
 Tipo utente: ${type}
 Nome: ${name}
-Email: ${email}
+Email: ${normalizedEmail}
 Telefono: ${phone}
 Indirizzo: ${address}
 Nome attività: ${activityName || "-"}
@@ -91,7 +106,7 @@ Data richiesta: ${new Date().toLocaleString('it-IT')}
                     </tr>
                     <tr>
                         <td style="padding: 8px; font-weight: bold; background-color: #f5f5f5;">Email:</td>
-                        <td style="padding: 8px;"><a href="mailto:${email}">${email}</a></td>
+                        <td style="padding: 8px;"><a href="mailto:${normalizedEmail}">${normalizedEmail}</a></td>
                     </tr>
                     <tr>
                         <td style="padding: 8px; font-weight: bold; background-color: #f5f5f5;">Telefono:</td>
@@ -131,7 +146,7 @@ Data richiesta: ${new Date().toLocaleString('it-IT')}
         const info = await transporter.sendMail(mailOptions);
 
         console.log(`✓ Email inviata con successo: ${info.messageId}`);
-        console.log(`  Da: ${name} <${email}>`);
+        console.log(`  Da: ${name} <${normalizedEmail}>`);
         console.log(`  Tipo: ${type}`);
 
         res.json({
