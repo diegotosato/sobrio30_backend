@@ -174,6 +174,10 @@ Data richiesta: ${new Date().toLocaleString('it-IT')}
     }
 });
 
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
 // Gestione rotte non trovate
 app.use((req, res) => {
     res.status(404).json({
@@ -191,9 +195,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.get('/health', (req, res) => {
-    res.status(200).send('OK');
-});
 
 // Avvio server
 app.listen(PORT, () => {
