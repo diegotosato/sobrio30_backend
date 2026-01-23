@@ -3,7 +3,7 @@ import express from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import validator from 'validator';
+import { normalizeEmail, isEmail } from 'validator';
 
 // Carica variabili d'ambiente da .env
 dotenv.config();
