@@ -8,6 +8,10 @@ import validator from 'validator';
 // Carica variabili d'ambiente da .env
 dotenv.config();
 
+import { Resend } from 'resend';
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+
 // Configurazione server Express
 const app = express();
 
@@ -61,22 +65,14 @@ app.post('/send-email', async (req, res) => {
             });
         }
 
-        // Configura Nodemailer con SMTP Gmail
-        const transporter = nodemailer.createTransport({
-            host: "authsmtp.securemail.pro",
-            port: 465,
-            secure: true, // true per porta 465 con SSL
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            connectionTimeout: 10_000,
-            greetingTimeout: 10_000,
-            socketTimeout: 10_000
+        // Rispondi subito al client
+        res.json({
+            success: true,
+            message: 'Richiesta ricevuta correttamente'
         });
 
         // Corpo della mail
-        const mailOptions = {
+        const htmlContent = {
             from: process.env.EMAIL_USER,
             replyTo: normalizedEmail,
             to: process.env.EMAIL_RECEIVER,
@@ -141,39 +137,33 @@ Data richiesta: ${new Date().toLocaleString('it-IT')}
             `
         };
 
-        // Verifica connessione prima di inviare
-        // await transporter.verify();
 
-        // Rispondi subito al client
-        res.json({
-            success: true,
-            message: 'Richiesta ricevuta correttamente'
-        });
-
-        // Invio email in background
-        transporter.sendMail(mailOptions)
+        // Invia email usando Resend
+        resend.emails.send({
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_RECEIVER,
+            subject: `Richiesta rivenditore Sobrio30 - ${name}`,
+            text: htmlContent.text,
+            html: htmlContent.html
+        })
             .then(info => {
-                console.log(`✓ Email inviata con successo: ${info.messageId}`);
+                console.log('Email inviata con successo:', info.id);
             })
-            .catch(err => {
-                console.error('✗ Errore invio email:', err.message);
+            .catch(error => {
+                console.error('Errore durante l\'invio dell\'email:', error);
             });
-
     } catch (err) {
-        console.error("✗ Errore invio email:", err.message);
-
-        // Log più dettagliato per debugging
-        if (err.code) console.error(`  Codice errore: ${err.code}`);
-        if (err.command) console.error(`  Comando: ${err.command}`);
+        console.error("✗ Errore generico:", err.message);
 
         res.status(500).json({
             success: false,
-            error: 'Errore durante l\'invio dell\'email. Riprova più tardi.',
+            error: 'Errore durante la gestione della richiesta.',
             details: process.env.NODE_ENV === 'development' ? err.message : undefined
         });
     }
 });
 
+// Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
