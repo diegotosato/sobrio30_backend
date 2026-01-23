@@ -3,6 +3,7 @@ import express from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import validator from 'validator';
 
 // Carica variabili d'ambiente da .env
 dotenv.config();
@@ -31,6 +32,13 @@ app.post('/send-email', async (req, res) => {
             activityType
         } = req.body;
 
+        if (!email) {
+            return res.status(400).json({ success: false, error: 'Email mancante' });
+        }
+
+        // Sanitizzazione email
+        const normalizedEmail = validator.normalizeEmail(email);
+
         // Validazione campi obbligatori
         if (!type || !name || !normalizedEmail || !phone || !address) {
             return res.status(400).json({
@@ -48,8 +56,6 @@ app.post('/send-email', async (req, res) => {
         }
 
 
-        // Sanitizzazione email
-        const normalizedEmail = validator.normalizeEmail(email);
 
         // Validazione email
         if (!normalizedEmail || !validator.isEmail(normalizedEmail, {
