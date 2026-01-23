@@ -61,15 +61,19 @@ app.post('/send-email', async (req, res) => {
             });
         }
 
-        // Configura Nodemailer con SMTP Gmail
+        // Configura Nodemailer con SMTP
         const transporter = nodemailer.createTransport({
             host: "authsmtp.securemail.pro",
-            port: 465,
-            secure: true, // true per porta 465 con SSL
+            port: 587,
+            secure: false, // false per porta 587 con STARTTLS
+            requireTLS: true,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
             },
+            tls: {
+                rejectUnauthorized: true
+            }
         });
 
         // Corpo della mail
