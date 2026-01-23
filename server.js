@@ -140,7 +140,7 @@ Data richiesta: ${new Date().toLocaleString('it-IT')}
 
         // Invia email usando Resend
         resend.emails.send({
-            from: process.env.EMAIL_USER,
+            from: `"${normalizedEmail}" <${process.env.EMAIL_USER}>`,
             to: process.env.EMAIL_RECEIVER,
             subject: `Richiesta rivenditore Sobrio30 - ${name}`,
             text: htmlContent.text,
