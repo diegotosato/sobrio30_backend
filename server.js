@@ -32,15 +32,8 @@ app.post('/send-email', async (req, res) => {
             activityType
         } = req.body;
 
-        if (!email) {
-            return res.status(400).json({ success: false, error: 'Email mancante' });
-        }
-
-        // Sanitizzazione email
-        const normalizedEmail = normalizeEmail(email);
-
         // Validazione campi obbligatori
-        if (!type || !name || !normalizedEmail || !phone || !address) {
+        if (!type || !name || !email || !phone || !address) {
             return res.status(400).json({
                 success: false,
                 error: 'Campi obbligatori mancanti'
@@ -55,9 +48,9 @@ app.post('/send-email', async (req, res) => {
             });
         }
 
+        // Sanitizzazione e validazione email
+        const normalizedEmail = normalizeEmail(email);
 
-
-        // Validazione email
         if (!normalizedEmail || !isEmail(normalizedEmail, {
             require_tld: true,
             allow_ip_domain: false
