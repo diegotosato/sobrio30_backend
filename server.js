@@ -61,19 +61,18 @@ app.post('/send-email', async (req, res) => {
             });
         }
 
-        // Configura Nodemailer con SMTP
+        // Configura Nodemailer con SMTP Gmail
         const transporter = nodemailer.createTransport({
             host: "authsmtp.securemail.pro",
-            port: 587,
-            secure: false, // false per porta 587 con STARTTLS
-            requireTLS: true,
+            port: 465,
+            secure: true, // true per porta 465 con SSL
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
             },
-            tls: {
-                rejectUnauthorized: true
-            }
+            connectionTimeout: 10_000,
+            greetingTimeout: 10_000,
+            socketTimeout: 10_000
         });
 
         // Corpo della mail
@@ -143,7 +142,7 @@ Data richiesta: ${new Date().toLocaleString('it-IT')}
         };
 
         // Verifica connessione prima di inviare
-        await transporter.verify();
+        // await transporter.verify();
 
         // Invio email
         const info = await transporter.sendMail(mailOptions);
