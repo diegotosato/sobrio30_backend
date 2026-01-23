@@ -37,7 +37,7 @@ app.post('/send-email', async (req, res) => {
         }
 
         // Sanitizzazione email
-        const normalizedEmail = validator.normalizeEmail(email);
+        const normalizedEmail = normalizeEmail(email);
 
         // Validazione campi obbligatori
         if (!type || !name || !normalizedEmail || !phone || !address) {
@@ -58,7 +58,7 @@ app.post('/send-email', async (req, res) => {
 
 
         // Validazione email
-        if (!normalizedEmail || !validator.isEmail(normalizedEmail, {
+        if (!normalizedEmail || !isEmail(normalizedEmail, {
             require_tld: true,
             allow_ip_domain: false
         })) {
