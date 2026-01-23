@@ -144,7 +144,8 @@ Data richiesta: ${new Date().toLocaleString('it-IT')}
             to: process.env.EMAIL_RECEIVER,
             subject: `Richiesta rivenditore Sobrio30 - ${name}`,
             text: htmlContent.text,
-            html: htmlContent.html
+            html: htmlContent.html,
+            reply_to: normalizedEmail
         })
             .then(info => {
                 console.log('Email inviata con successo:', info.id);
