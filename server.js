@@ -144,18 +144,20 @@ Data richiesta: ${new Date().toLocaleString('it-IT')}
         // Verifica connessione prima di inviare
         // await transporter.verify();
 
-        // Invio email
-        const info = await transporter.sendMail(mailOptions);
-
-        console.log(`✓ Email inviata con successo: ${info.messageId}`);
-        console.log(`  Da: ${name} <${normalizedEmail}>`);
-        console.log(`  Tipo: ${type}`);
-
+        // Rispondi subito al client
         res.json({
             success: true,
-            message: 'Email inviata con successo',
-            messageId: info.messageId
+            message: 'Richiesta ricevuta correttamente'
         });
+
+        // Invio email in background
+        transporter.sendMail(mailOptions)
+            .then(info => {
+                console.log(`✓ Email inviata con successo: ${info.messageId}`);
+            })
+            .catch(err => {
+                console.error('✗ Errore invio email:', err.message);
+            });
 
     } catch (err) {
         console.error("✗ Errore invio email:", err.message);
@@ -187,6 +189,10 @@ app.use((err, req, res, next) => {
         success: false,
         error: 'Errore interno del server'
     });
+});
+
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
 });
 
 // Avvio server
