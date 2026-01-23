@@ -3,7 +3,7 @@ import express from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { normalizeEmail, isEmail } from 'validator';
+import validator from 'validator';
 
 // Carica variabili d'ambiente da .env
 dotenv.config();
@@ -49,9 +49,9 @@ app.post('/send-email', async (req, res) => {
         }
 
         // Sanitizzazione e validazione email
-        const normalizedEmail = normalizeEmail(email);
+        const normalizedEmail = validator.normalizeEmail(email);
 
-        if (!normalizedEmail || !isEmail(normalizedEmail, {
+        if (!normalizedEmail || !validator.isEmail(normalizedEmail, {
             require_tld: true,
             allow_ip_domain: false
         })) {
